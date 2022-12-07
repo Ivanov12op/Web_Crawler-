@@ -77,7 +77,7 @@ class Crawler():
 			exit
 
 
-	def get_seed(self,html ):
+	def get_seed(self,html ):   NENENENENENNENEN
 		page_links = []
 
 		page_url = self.url+ str(self.current_page) 
@@ -105,7 +105,7 @@ class Crawler():
 				self.get_seed()
 
 		
-	def get_data(self, html):
+	def get_data(self, html): NENENENENENNE
 		
 		soup = BeautifulSoup( html, 'html.parser') 
 		modul = soup.find('div',id='callButtonsOffset',class_="page")
