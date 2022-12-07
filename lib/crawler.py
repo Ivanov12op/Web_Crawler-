@@ -18,7 +18,7 @@ class Crawler():
 		self.visited = []
 		self.url = "https://m.mobile.bg/results?pubtype=1&currency=%D0%A0%C2%BB%D0%A0%D0%86.&marka=BMW&model=120&sort=3&nup=0~1&slink=qgy2t8&page="
 		self.data_path = DATA_PATH
-		self.current_page_number = 1
+		self.current_page = 1
 
 		self.db = DB()
 		# self.db.drop_radiotheaters_table()
@@ -77,9 +77,9 @@ class Crawler():
 			exit
 
 
-	def get_seed(self, ):
+	def get_seed(self,html ):
 		page_links = []
-		#html= self.get_html(page_url)
+
 		page_url = self.url+ str(self.current_page) 
 		html = self.get_html(page_url)
 		
@@ -88,35 +88,36 @@ class Crawler():
 		# get  publicat list
 		rows= table.find ( 'div', class_="ng-star-inserted")
 		
-
+		
 		for info in rows:
-			sity_info = info.find( 'advertl' , class_="results" ).getText
-			sity_info = info.get_text()
+			sity_info = info.find( 'advertl' , class_="results" ).getText()
+			
 			if sity_info == re.compile (r'([София])'):
+		        
 				a = sity_info .find_all('div',  class_="listItem")
 
 			page_links.append( urljoin (base_url, a['id']))
-
-			if page_links:
-				self.seed = [ *self.seed, *page_links]
-				self.curent_page+1 
-				self.get_seed()
+		    
+			
+			#if page_links:
+			#	self.seed = [ *self.seed, *page_links]
+			#	self.current_page+1 
+			#	self.get_seed()
 
 		
 	def get_data(self, html):
 		
 		soup = BeautifulSoup( html, 'html.parser') 
-		
-		
 		modul = soup.find('div',id='callButtonsOffset',class_="page")
 		
 		Price = modul.find( "div", class_="price" ).getText
-		title = modul.find('h1').getText(strip=True)
+		title = modul.find('h1').getText(strip=True) 
+		#### !!!!!!!!!!
 		modul2 = modul.find('div', class_='oPanel oMainData ng-star-inserted')
 		
-		Car_year = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[0]
-		Engine_type =modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[1]
-		Аccumulated_km = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[6]
+		Car_year = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[0].getText()
+		Engine_type =modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[1].getText()
+		Аccumulated_km = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[6].getText()
 
 		return { 
 			'title': title,
@@ -126,13 +127,7 @@ class Crawler():
 			'Аccumulated_km': Аccumulated_km,
 		}	
 	
-		print(f'Crawling page: {url}')
-		html = self.get_html(url)
-
-		scraper = Scraper(html)
-		pub_data = scraper.get_pub_data()
-
-		return pub_data
+		
 
 
 	def run(self):
@@ -148,6 +143,7 @@ class Crawler():
 
 
 if __name__ == '__main__':
+
 	base_url = 'https://m.mobile.bg/results?pubtype=1&currency=%D0%A0%C2%BB%D0%A0%D0%86.&marka=BMW&model=120&sort=3&nup=0~1&slink=qgy2t8'
 	crawler = Crawler(base_url)
 	crawler.run()
