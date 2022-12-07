@@ -99,10 +99,10 @@ class Crawler():
 			page_links.append( urljoin (base_url, a['id']))
 		    
 			
-			#if page_links:
-			#	self.seed = [ *self.seed, *page_links]
-			#	self.current_page+1 
-			#	self.get_seed()
+			if page_links:
+				self.seed = [ *self.seed, *page_links]
+				self.current_page+1 
+				self.get_seed()
 
 		
 	def get_data(self, html):
