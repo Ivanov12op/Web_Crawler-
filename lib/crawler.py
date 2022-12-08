@@ -81,7 +81,7 @@ class Crawler():
 		print(f'Crawling main page {self.current_page}:{url}')
 		page_links = []
 
-		page_url = self.url+ str(self.current_page) 
+		page_url = self.url+ str(self.current_page)  ### тук нещо нее както трябва
 		html = self.get_html(page_url)
 		
 		soup = BeautifulSoup(html.content, 'html.parser')
@@ -111,7 +111,7 @@ class Crawler():
 
 		title = modul.find('strong', style_="font-size:18px;color:#333;" ).getText()
 	
-		modul2= modul.find ('ul', class_="dilarData")(2).getTex()
+		modul2= modul.find ('ul', class_="dilarData")(2).getTex()   # !!!!!!!!!!!!
 	
 		Car_year = modul2.(2)getText()
 		Engine_type = modul2.getText()
