@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-
+#base_url = "https://mobile.bg"
 try:
 	from Lib.constants import DATA_PATH
 	from Lib.db import DB
@@ -16,7 +16,7 @@ class Crawler():
 		self.base_url = base_url
 		self.seed = []
 		self.visited = []
-		self.url = "https://m.mobile.bg/results?pubtype=1&currency=%D0%A0%C2%BB%D0%A0%D0%86.&marka=BMW&model=120&sort=3&nup=0~1&slink=qgy2t8&page="
+		self.url = "https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=qkn957&f1="
 		self.data_path = DATA_PATH
 		self.current_page = 1
 
@@ -77,47 +77,45 @@ class Crawler():
 			exit
 
 
-	def get_seed(self,html ):   NENENENENENNENEN
+	def get_seed(self,url ):
+		print(f'Crawling main page {self.current_page}:{url}')
 		page_links = []
 
 		page_url = self.url+ str(self.current_page) 
 		html = self.get_html(page_url)
 		
-		soup = BeautifulSoup(html,'html.parser')
-		table = soup.find ( 'div',  class_="page" )
-		# get  publicat list
-		rows= table.find ( 'div', class_="ng-star-inserted")
-		
-		
-		for info in rows:
-			sity_info = info.find( 'advertl' , class_="results" ).getText()
-			
-			if sity_info == re.compile (r'([София])'):
-		        
-				a = sity_info .find_all('div',  class_="listItem")
+		soup = BeautifulSoup(html.content, 'html.parser')
+		table = soup.find_all ('table',  class_="tablereset" )
+		set_a = table.find ('td', colspan= "3" ).getText()
 
-			page_links.append( urljoin (base_url, a['id']))
-		    
-			
+		for sity in set_a:
+			if sity == re.findall(r"\София", sity):
+				a = table .find_all("a", href = True )
+
+			page_links.append( urljoin (base_url, a['hre']))
+
+
+
 			if page_links:
 				self.seed = [ *self.seed, *page_links]
 				self.current_page+1 
 				self.get_seed()
 
+			
+
 		
-	def get_data(self, html): NENENENENENNE
+	def get_data(self, html):
 		
-		soup = BeautifulSoup( html, 'html.parser') 
-		modul = soup.find('div',id='callButtonsOffset',class_="page")
-		
-		Price = modul.find( "div", class_="price" ).getText
-		title = modul.find('h1').getText(strip=True) 
-		#### !!!!!!!!!!
-		modul2 = modul.find('div', class_='oPanel oMainData ng-star-inserted')
-		
-		Car_year = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[0].getText()
-		Engine_type =modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[1].getText()
-		Аccumulated_km = modul2.find_all('div',clas_='oPanel oMainData ng-star-inserted')[6].getText()
+		soup = BeautifulSoup( html, 'html.parser')
+		modul = soup.find ( 'div', style_="width:300px; display:inline-block;  float:left; margin-top:18px; overflow: hidden;"  ) 
+
+		title = modul.find('strong', style_="font-size:18px;color:#333;" ).getText()
+	
+		modul2= modul.find ('ul', class_="dilarData")(2).getTex()
+	
+		Car_year = modul2.(2)getText()
+		Engine_type = modul2.getText()
+		Аccumulated_km  =
 
 		return { 
 			'title': title,
@@ -138,15 +136,19 @@ class Crawler():
 
 		self.get_seed(self.base_url)
 
+		for url in self.seed:
+			page_html = self.get_html(url)
+			data = self.get_data(page_html)
 
-		print('Crawler finished its job!')
+			DB.insert_row(tuple(data.values()))
+		
 
 
 if __name__ == '__main__':
 
-	base_url = 'https://m.mobile.bg/results?pubtype=1&currency=%D0%A0%C2%BB%D0%A0%D0%86.&marka=BMW&model=120&sort=3&nup=0~1&slink=qgy2t8'
-	crawler = Crawler(base_url)
+	base_url = 'https://www.mobile.bg/pcgi/mobile.cgi?act=3&slink=qkn957&f1='
+	crawler = Crawler()
 	crawler.run()
-
+	bd = DB()
 
 
